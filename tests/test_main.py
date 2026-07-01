@@ -1,6 +1,7 @@
 import pytest
 
 from main import GaramiEditor
+from types import SimpleNamespace
 
 
 class FakeCanvas:
@@ -52,6 +53,16 @@ class FakeCanvas:
             return (item_id,)
         raise IndexError
 
+    def bbox(self, item_id):
+        coords = self.items[item_id]["coords"]
+        if len(coords) >= 4:
+            x1, y1, x2, y2 = coords[0], coords[1], coords[2], coords[3]
+            return (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
+        if len(coords) >= 2:
+            x, y = coords[0], coords[1]
+            return (x, y, x, y)
+        return None
+
     def find_all(self):
         return list(self.items.keys())
 
@@ -62,8 +73,8 @@ def make_editor():
     editor.selected_items = []
     editor.resize_start_state = {}
     editor.resize_start_bbox = None
-    editor.brush_width = 3
-    editor.font_size = 18
+    editor.brush_width = SimpleNamespace(get=lambda: 3)
+    editor.font_size = SimpleNamespace(get=lambda: 18)
     editor.layer_visibility = {}
     editor.layer_locked = {}
     editor.layer_names = {}
